@@ -78,7 +78,7 @@ def показать_строку(таблицаТочек, n):
     cv2.waitKey(0)
 
 
-image_file = "3.5.png"
+image_file = "example.png"
 img = cv2.imread(image_file)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY)
