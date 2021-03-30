@@ -33,6 +33,6 @@ for i, el in enumerate(data.splitlines()):
         print("Операция была пропущена")
 
 # Отображаем фото
-cv2.imwrite('out.png', img)
+cv2.imwrite('out/out.png', img)
 # cv2.imshow('Result', img)
 # cv2.waitKey(0)
