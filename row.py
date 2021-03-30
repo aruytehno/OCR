@@ -74,8 +74,9 @@ def показать_строку(таблицаТочек, n):
     # input()
 
     crop_img = rotimg[int(minY):int(maxY), int(minX):int(maxX)]
-    cv2.imshow("cropped", crop_img)
-    cv2.waitKey(0)
+    # cv2.imshow("cropped", crop_img)
+    # cv2.waitKey(0)
+    cv2.imwrite('out/cropped.png', crop_img)
 
 
 image_file = "example.png"
@@ -154,12 +155,9 @@ for _ in таблица:
                     cv2.LINE_AA)
         n += 1
     d += 1
-# print(n)
 
-
-cv2.imshow("Input", img)
-cv2.imshow("gray", gray)
-cv2.imshow("thresh", thresh)
-cv2.imshow("Enlarged", img_erode)
-cv2.imshow("rotimg", rotimg)
-cv2.waitKey(0)
+cv2.imwrite('out/Input.png', img)
+cv2.imwrite('out/gray.png', gray)
+cv2.imwrite('out/thresh.png', thresh)
+cv2.imwrite('out/Enlarged.png', img_erode)
+cv2.imwrite('out/rotimg.png', rotimg)
