@@ -39,8 +39,8 @@ def sorting_contours(contours):
     return cell_table
 
 
-def show_row(таблицаТочек, n):
-    row = таблицаТочек[n - 1]
+def show_row(point_table, n):
+    row = point_table[n - 1]
 
     maxY = 0
     for _ in row:
@@ -59,12 +59,13 @@ def show_row(таблицаТочек, n):
             if __[0] > maxX:
                 maxX = __[0]
     minX = row[0][0][0]
+
     for _ in row:
         for __ in _:
             if __[0] < minX:
                 minX = __[0]
 
-    crop_img = rotimg[int(minY):int(maxY), int(minX):int(maxX)]
+    crop_img = rotate_img[int(minY):int(maxY), int(minX):int(maxX)]
     cv2.imwrite('out/cropped.png', crop_img)
 
 
@@ -81,24 +82,24 @@ output = img.copy()
 cnt = contours[1]
 ell = cv2.fitEllipse(cnt)
 angle = ell[2]
-rotimg = rotate_image(img, angle - 90)
-cv2.imshow("rotate", rotimg)
+rotate_img = rotate_image(img, angle - 90)
+cv2.imshow("rotate", rotate_img)
 roterode = rotate_image(img_erode, angle - 90)
 
 contours, hierarchy = cv2.findContours(roterode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 n = 0
-ячейки = []
+cells = []
 for idx, contour in enumerate(contours):
     if hierarchy[0][idx][3] == 1:
         n += 1
         rect = cv2.minAreaRect(contour)  # выход:((x,y),(w,h),angle))
-        ячейки.append(rect)
+        cells.append(rect)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(rotimg, [box], 0, (250, 0, 0), 1)
+        cv2.drawContours(rotate_img, [box], 0, (250, 0, 0), 1)
 
-table = sorting_contours(ячейки)
+table = sorting_contours(cells)
 
 point_table = []
 for _ in table:
@@ -110,7 +111,7 @@ for _ in table:
 for _ in point_table:
     for __ in _:
         for ___ in __:
-            cv2.circle(rotimg, (int(___[0]), int(___[1])), 2, (0, 0, 255), 2)
+            cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (0, 0, 255), 2)
 
 show_row(point_table, 6)
 
@@ -118,7 +119,7 @@ n = 1
 d = 1
 for _ in table:
     for __ in _:
-        cv2.putText(rotimg, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2,
+        cv2.putText(rotate_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2,
                     cv2.LINE_AA)
         n += 1
     d += 1
@@ -127,4 +128,4 @@ cv2.imwrite('out/Input.png', img)
 cv2.imwrite('out/gray.png', gray)
 cv2.imwrite('out/thresh.png', thresh)
 cv2.imwrite('out/Enlarged.png', img_erode)
-cv2.imwrite('out/rotimg.png', rotimg)
+cv2.imwrite('out/rotimg.png', rotate_img)
