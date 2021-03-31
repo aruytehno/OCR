@@ -17,9 +17,7 @@ def rotate_image(mat, angle):
 
     rotation_mat[0, 2] += ((bound_w / 2) - image_center[0])
     rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
-
-    rotated_mat = cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
-    return rotated_mat
+    return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
 
 
 def sorting_contours(contours):
@@ -54,6 +52,7 @@ def show_row(point_table, n):
                 minY = __[1]
 
     maxX = 0
+
     for _ in row:
         for __ in _:
             if __[0] > maxX:
@@ -69,8 +68,8 @@ def show_row(point_table, n):
     cv2.imwrite('out/cropped.png', crop_img)
 
 
-image_file = "example.png"
-img = cv2.imread(image_file)
+# начало работы
+img = cv2.imread("example.png")
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY)
 img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8), iterations=1)
@@ -97,7 +96,7 @@ for idx, contour in enumerate(contours):
         cells.append(rect)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(rotate_img, [box], 0, (250, 0, 0), 1)
+        cv2.drawContours(rotate_img, [box], 0, (0, 0, 255), 1)  # цвет определённых контуров (красный)
 
 table = sorting_contours(cells)
 
@@ -111,16 +110,17 @@ for _ in table:
 for _ in point_table:
     for __ in _:
         for ___ in __:
-            cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (0, 0, 255), 2)
+            cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
 
+print(point_table.__sizeof__())
 show_row(point_table, 6)
 
 n = 1
 d = 1
 for _ in table:
     for __ in _:
-        cv2.putText(rotate_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2,
-                    cv2.LINE_AA)
+        cv2.putText(rotate_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1,
+                    cv2.LINE_AA) # цвет нумерации ячеек (синий)
         n += 1
     d += 1
 
