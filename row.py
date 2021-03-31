@@ -107,6 +107,8 @@ for _ in table:
         row.append(cv2.boxPoints(__))
     point_table.append(row)
 
+
+# Расставляет точеки пересечения
 for _ in point_table:
     for __ in _:
         for ___ in __:
@@ -124,8 +126,8 @@ for _ in table:
         n += 1
     d += 1
 
-cv2.imwrite('out/Input.png', img)
-cv2.imwrite('out/gray.png', gray)
-cv2.imwrite('out/thresh.png', thresh)
-cv2.imwrite('out/Enlarged.png', img_erode)
+# cv2.imwrite('out/Input.png', img)
+# cv2.imwrite('out/gray.png', gray)
+# cv2.imwrite('out/thresh.png', thresh)
+# cv2.imwrite('out/Enlarged.png', img_erode)
 cv2.imwrite('out/rotimg.png', rotate_img)
