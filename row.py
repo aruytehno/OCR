@@ -3,6 +3,7 @@ import numpy as np
 import math
 
 
+# Возвращает повёрнутое изображение (матрицу) на угол "angle"
 def rotate_image(mat, angle):
     height, width = mat.shape[:2]
     image_center = (width / 2, height / 2)
@@ -20,6 +21,8 @@ def rotate_image(mat, angle):
     return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
 
 
+# сортирует контруры, возвращает вложенный массив, табличное представление
+# [[((x,y),(w,h),angle)),((x,y),(w,h),angle)),...],[((x,y),(w,h),angle)),((x,y),(w,h),angle)),...],]
 def sorting_contours(contours):
     contours2 = contours.copy()
     cell_table = []
@@ -69,24 +72,33 @@ def show_row(point_table, n):
 
 
 # начало работы
+# чтение изображение в img
 img = cv2.imread("example.png")
+# конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY)
-img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8), iterations=1)
+# пороговое осветление (все пиксели ярче 20 становятся белыми (255)) результат в "trash"
+ret, thresh = cv2.threshold(gray, 20, 255,
+                            cv2.THRESH_BINARY)
+img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),
+                      iterations=1)  # эрозия)) - каждый чёрный пиксель закрашивает соседние вокруг себя
 
+# поиск контуров в "contours" изображение контуров, а в "hierarhy" иерархия (инф о вложенности контуров)
 contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+# копирование входного изображение чтобы потом наложить на него контуры
 output = img.copy()
 
-cnt = contours[1]
-ell = cv2.fitEllipse(cnt)
-angle = ell[2]
-rotate_img = rotate_image(img, angle - 90)
-cv2.imshow("rotate", rotate_img)
-roterode = rotate_image(img_erode, angle - 90)
+cnt = contours[1] # самый большой контур копировать в cnt
+ell = cv2.fitEllipse(cnt) # нахождение эллипса из контура
+angle = ell[2] # угол поворота этого эллипса
+rotate_img = rotate_image(img, angle - 90) # поворачивает изначсальное изображение на угол поворота главного контура
+cv2.imshow("rotate", rotate_img) # показывает его
+roterode = rotate_image(img_erode, angle - 90) # поворачивает изображение (img_erode) которое после преобразования
 
+# поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
 contours, hierarchy = cv2.findContours(roterode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+# здесь преобразование беспорядочных точек контуров в отсортированые 4 точки углов каждой ячейки:
 n = 0
 cells = []
 for idx, contour in enumerate(contours):
@@ -107,7 +119,6 @@ for _ in table:
         row.append(cv2.boxPoints(__))
     point_table.append(row)
 
-
 # Расставляет точеки пересечения
 for _ in point_table:
     for __ in _:
@@ -115,17 +126,19 @@ for _ in point_table:
             cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
 
 print(point_table.__sizeof__())
-show_row(point_table, 6)
 
+show_row(point_table, 6) # отображает строку по номеру TODO: выборка строки не происходит. Отладить.
+
+# отображение номеров ячеек
 n = 1
 d = 1
 for _ in table:
     for __ in _:
         cv2.putText(rotate_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1,
-                    cv2.LINE_AA) # цвет нумерации ячеек (синий)
+                    cv2.LINE_AA)  # цвет нумерации ячеек (синий)
         n += 1
     d += 1
-
+# сохранение всех изображений
 # cv2.imwrite('out/Input.png', img)
 # cv2.imwrite('out/gray.png', gray)
 # cv2.imwrite('out/thresh.png', thresh)
