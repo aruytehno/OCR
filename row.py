@@ -73,7 +73,7 @@ def show_row(point_table, n):
 
 # начало работы
 # чтение изображение в img
-img = cv2.imread("example.png")
+img = cv2.imread("example6.jpg")
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 20 становятся белыми (255)) результат в "trash"
@@ -127,7 +127,7 @@ for _ in point_table:
 
 print(point_table.__sizeof__())
 
-show_row(point_table, 6) # отображает строку по номеру TODO: выборка строки не происходит. Отладить.
+show_row(point_table, 4) # отображает строку по номеру
 
 # отображение номеров ячеек
 n = 1
@@ -139,7 +139,7 @@ for _ in table:
         n += 1
     d += 1
 # сохранение всех изображений
-# cv2.imwrite('out/Input.png', img)
+cv2.imwrite('out/Input.png', img)
 # cv2.imwrite('out/gray.png', gray)
 # cv2.imwrite('out/thresh.png', thresh)
 # cv2.imwrite('out/Enlarged.png', img_erode)
