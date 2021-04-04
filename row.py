@@ -68,7 +68,7 @@ def show_row(point_table, n):
                 minX = __[0]
 
     crop_img = rotate_img[int(minY):int(maxY), int(minX):int(maxX)]
-    cv2.imwrite('out/cropped.png', crop_img)
+    cv2.imwrite('out\cropped.png', crop_img)
 
 
 # начало работы
@@ -76,11 +76,9 @@ def show_row(point_table, n):
 img = cv2.imread("example6.jpg")
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-# пороговое осветление (все пиксели ярче 20 становятся белыми (255)) результат в "trash"
-ret, thresh = cv2.threshold(gray, 20, 255,
-                            cv2.THRESH_BINARY)
-img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),
-                      iterations=1)  # эрозия)) - каждый чёрный пиксель закрашивает соседние вокруг себя
+# пороговое осветление (все пиксели ярче 70 становятся белыми (255)остальные чёрными (0)) результат в "trash"
+ret, thresh = cv2.threshold(gray, 70,255,0,  cv2.THRESH_BINARY)
+img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),iterations=1)  # эрозия)) - каждый чёрный пиксель закрашивает соседние вокруг себя
 
 # поиск контуров в "contours" изображение контуров, а в "hierarhy" иерархия (инф о вложенности контуров)
 contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -91,9 +89,9 @@ output = img.copy()
 cnt = contours[1] # самый большой контур копировать в cnt
 ell = cv2.fitEllipse(cnt) # нахождение эллипса из контура
 angle = ell[2] # угол поворота этого эллипса
-rotate_img = rotate_image(img, angle - 90) # поворачивает изначсальное изображение на угол поворота главного контура
+rotate_img = rotate_image(img, angle) # поворачивает изначсальное изображение на угол поворота главного контура
 cv2.imshow("rotate", rotate_img) # показывает его
-roterode = rotate_image(img_erode, angle - 90) # поворачивает изображение (img_erode) которое после преобразования
+roterode = rotate_image(img_erode, angle) # поворачивает изображение (img_erode) которое после преобразования
 
 # поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
 contours, hierarchy = cv2.findContours(roterode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -119,7 +117,7 @@ for _ in table:
         row.append(cv2.boxPoints(__))
     point_table.append(row)
 
-# Расставляет точеки пересечения
+# Расставляет точки пересечения
 for _ in point_table:
     for __ in _:
         for ___ in __:
@@ -140,7 +138,7 @@ for _ in table:
     d += 1
 # сохранение всех изображений
 cv2.imwrite('out\Input.png', img)
-# cv2.imwrite('out/gray.png', gray)
-# cv2.imwrite('out/thresh.png', thresh)
-# cv2.imwrite('out/Enlarged.png', img_erode)
+# cv2.imwrite('out\gray.png', gray)
+# cv2.imwrite('out\thresh.png', thresh)
+# cv2.imwrite('out\Enlarged.png', img_erode)
 cv2.imwrite('rotimg.png', rotate_img)
