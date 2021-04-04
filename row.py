@@ -139,8 +139,8 @@ for _ in table:
         n += 1
     d += 1
 # сохранение всех изображений
-cv2.imwrite('out/Input.png', img)
+cv2.imwrite('out\Input.png', img)
 # cv2.imwrite('out/gray.png', gray)
 # cv2.imwrite('out/thresh.png', thresh)
 # cv2.imwrite('out/Enlarged.png', img_erode)
-cv2.imwrite('out/rotimg.png', rotate_img)
+cv2.imwrite('rotimg.png', rotate_img)
