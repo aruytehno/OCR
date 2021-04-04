@@ -142,3 +142,4 @@ cv2.imwrite('out\Input.png', img)
 # cv2.imwrite('out\thresh.png', thresh)
 # cv2.imwrite('out\Enlarged.png', img_erode)
 cv2.imwrite('rotimg.png', rotate_img)
+#
