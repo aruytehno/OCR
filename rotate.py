@@ -2,6 +2,7 @@
 # https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
 
 # import the necessary packages
+import os
 
 import numpy as np
 
@@ -19,7 +20,7 @@ args = vars(ap.parse_args())
 
 # load the image from disk
 
-image = cv2.imread("example.png")
+image = cv2.imread('examples' + os.sep + 'example.png')
 
 # convert the image to grayscale and flip the foreground
 

@@ -2,6 +2,7 @@ import cv2
 import pytesseract
 import math
 
+
 # https://itproger.com/news/raspoznavanie-teksta-s-kartinki-python-tesseract-orc-opencv
 # Путь для подключения tesseract
 # pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -22,8 +23,9 @@ def rotate_image(mat, angle):
     rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
     return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
 
+
 # Подключение фото
-img = cv2.imread('example.png')
+img = cv2.imread('examples/example.png')
 
 # img = rotate_image(img, -8)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -53,4 +55,3 @@ for i, el in enumerate(data.splitlines()):
         print("Операция была пропущена")
 
 cv2.imwrite('out/out.png', img)
-

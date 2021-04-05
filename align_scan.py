@@ -1,14 +1,16 @@
+import os
+
 import cv2
 import numpy as np
 
-src = 255 - cv2.imread('example.png', 0)
+src = 255 - cv2.imread('examples' + os.sep + 'example.png', 0)
 scores = []
 
 h, w = src.shape
 small_dimention = min(h, w)
 src = src[:small_dimention, :small_dimention]
 
-out = cv2.VideoWriter('rotate.avi',
+out = cv2.VideoWriter('out' + os.sep + 'rotate.avi',
                       cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                       15, (320, 320))
 
