@@ -74,11 +74,12 @@ def show_row(point_table, n):
 
 # начало работы
 # чтение изображение в img
-img = cv2.imread('examples' + os.sep + 'example6.png')
+img = cv2.imread('examples' + os.sep + 'example7.png')
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-# пороговое осветление (все пиксели ярче 70 становятся белыми (255)остальные чёрными (0)) результат в "trash"
-ret, thresh = cv2.threshold(gray, 70, 255, 0, cv2.THRESH_BINARY)
+# пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
+# первое число очень важно - от его выбора зависит как определятся контуры
+ret, thresh = cv2.threshold(gray, 200, 255, 0, cv2.THRESH_BINARY)
 img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),
                       iterations=1)  # эрозия)) - каждый чёрный пиксель закрашивает соседние вокруг себя
 
@@ -89,10 +90,45 @@ contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPRO
 output = img.copy()
 
 cnt = contours[1]  # самый большой контур копировать в cnt
-ell = cv2.fitEllipse(cnt)  # нахождение эллипса из контура
-angle = ell[2]  # угол поворота этого эллипса
+# определение угла поворота по самой нижней линии контура
+rect = cv2.minAreaRect(cnt)  # пытаемся вписать прямоугольник
+box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
+box = np.int0(box)  # округление координат
+print(box)
+for _ in box:
+    xy = tuple(_)
+    output = cv2.circle(output, xy, 1, (0, 0, 255), 2)
+
+# нахождение 2 самых нижних точек
+t = -1
+indt1 = -1
+for i, _ in enumerate(box):
+    if _[1] > t:
+        t = _[1]
+        indt1 = i
+
+t = -1
+indt2 = -1
+for i, _ in enumerate(box):
+    if indt1 != i:
+        if _[1] > t:
+            t = _[1]
+            indt2 = i
+t1 = box[indt1]
+t2 = box[indt2]
+
+edge1 = (t1[0] - t2[0])
+edge2 = (t1[1] - t2[1])
+print(edge1, edge2)
+# edge1 edge2 - катеты прямоугольного треугольника
+angle = 180.0 / math.pi * math.atan(edge2 / edge1)
+print("угол", angle)
+# конец определения угла поворота
+
+
 rotate_img = rotate_image(img, angle)  # поворачивает изначсальное изображение на угол поворота главного контура
 cv2.imshow("rotate", rotate_img)  # показывает его
+cv2.waitKey(0)
 roterode = rotate_image(img_erode, angle)  # поворачивает изображение (img_erode) которое после преобразования
 
 # поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
