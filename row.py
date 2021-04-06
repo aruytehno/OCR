@@ -90,6 +90,7 @@ contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPRO
 output = img.copy()
 
 cnt = contours[1]  # самый большой контур копировать в cnt
+
 # определение угла поворота по самой нижней линии контура
 rect = cv2.minAreaRect(cnt)  # пытаемся вписать прямоугольник
 box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
@@ -124,7 +125,6 @@ print(edge1, edge2)
 angle = 180.0 / math.pi * math.atan(edge2 / edge1)
 print("угол", angle)
 # конец определения угла поворота
-
 
 rotate_img = rotate_image(img, angle)  # поворачивает изначсальное изображение на угол поворота главного контура
 cv2.imshow("rotate", rotate_img)  # показывает его
