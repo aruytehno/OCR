@@ -74,7 +74,7 @@ def show_row(point_table, n):
 
 # начало работы
 # чтение изображение в img
-img = cv2.imread('examples' + os.sep + 'example7.png')
+img = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'm21.png')
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
