@@ -5,10 +5,11 @@ import cv2
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True, help="path to input image file")
+ap.add_argument("-i", "--image", required=True,
+                help="path to input image file")
 args = vars(ap.parse_args())
 # load the image from disk
-image = cv2.imread('examples/rotated/m8.jpeg')
+image = cv2.imread(args["image"])
 # convert the image to grayscale and flip the foreground
 # and background to ensure foreground is now "white" and
 # the background is "black"
