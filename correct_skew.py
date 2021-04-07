@@ -40,7 +40,7 @@ M = cv2.getRotationMatrix2D(center, angle, 1.0)
 rotated = cv2.warpAffine(image, M, (w, h),
                          flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 # рисуем угол коррекции на изображении, чтобы мы могли его проверить
-cv2.putText(rotated, "Angle: {:.2f} degrees".format(angle),
+cv2.putText(rotated, "Correction angle: {:.2f}".format(angle),
             (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 # сохраняем выходное изображение
 print("[INFO] angle: {:.3f}".format(angle))
