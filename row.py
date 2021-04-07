@@ -5,21 +5,21 @@ import math
 
 
 # Возвращает повёрнутое изображение (матрицу) на угол "angle"
-def rotate_image(mat, angle):
-    height, width = mat.shape[:2]
-    image_center = (width / 2, height / 2)
-
-    rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1)
-
-    radians = math.radians(angle)
-    sin = math.sin(radians)
-    cos = math.cos(radians)
-    bound_w = int((height * abs(sin)) + (width * abs(cos)))
-    bound_h = int((height * abs(cos)) + (width * abs(sin)))
-
-    rotation_mat[0, 2] += ((bound_w / 2) - image_center[0])
-    rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
-    return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
+# def rotate_image(mat, angle):
+#     height, width = mat.shape[:2]
+#     image_center = (width / 2, height / 2)
+#
+#     rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1)
+#
+#     radians = math.radians(angle)
+#     sin = math.sin(radians)
+#     cos = math.cos(radians)
+#     bound_w = int((height * abs(sin)) + (width * abs(cos)))
+#     bound_h = int((height * abs(cos)) + (width * abs(sin)))
+#
+#     rotation_mat[0, 2] += ((bound_w / 2) - image_center[0])
+#     rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
+#     return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
 
 
 # сортирует контруры, возвращает вложенный массив, табличное представление
@@ -75,8 +75,37 @@ def show_row(point_table, n):
 """
 начало работы
 """
+image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
+# преобразовать изображение в оттенки серого и перевернуть передний план
+# и фон, чтобы убедиться, что передний план теперь "белый" и фон "черный"
+gray = cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY)
+gray = cv2.bitwise_not(gray)
+# порог изображения, устанавливая для всех пикселей переднего плана значение
+# 255 и все пиксели фона на 0
+thresh = cv2.threshold(gray, 0, 255,
+                       cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+# получаем координаты (x, y) всех значений пикселей, которые
+# больше нуля, используйте эти координаты для
+# вычислить повернутую ограничивающую рамку, которая содержит все координаты
+coords = np.column_stack(np.where(thresh > 0))
+angle = cv2.minAreaRect(coords)[-1]
+# функция `cv2.minAreaRect` возвращает значения в
+# диапазон [-90, 0); при вращении прямоугольника по часовой стрелке
+# вернули угловые тренды на 0 - в этом особом случае мы
+# нужно добавить 90 градусов к углу
+if angle < -45:
+    angle = -(90 + angle)
+# в противном случае просто возьмите угол, обратный углу, чтобы сделать его положительным
+else:
+    angle = -angle
+# повернуть изображение, чтобы выровнять его
+(h, w) = image_orig.shape[:2]
+center = (w // 2, h // 2)
+M = cv2.getRotationMatrix2D(center, angle, 1.0)
+rotated_orig = cv2.warpAffine(image_orig, M, (w, h),
+                              flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 # чтение изображение в img
-image = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
+image = rotated_orig
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
@@ -98,6 +127,8 @@ rect = cv2.minAreaRect(cnt)  # пытаемся вписать прямоуго�
 box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
 box = np.int0(box)  # округление координат
 print(box)
+
+
 for _ in box:
     xy = tuple(_)
     output = cv2.circle(output, xy, 1, (0, 0, 255), 2)
@@ -128,9 +159,10 @@ angle = 180.0 / math.pi * math.atan(edge2 / edge1)
 print("угол", angle)
 # конец определения угла поворота
 
-rotate_img = rotate_image(image, angle)  # поворачивает изначсальное изображение на угол поворота главного контура
+rotate_img = image  # поворачивает изначсальное изображение на угол поворота главного контура
 cv2.imwrite('out' + os.sep + 'rotate_img.png', rotate_img)  # показывает его
-roterode = rotate_image(img_erode, angle)  # поворачивает изображение (img_erode) которое после преобразования
+roterode = img_erode  # поворачивает изображение (img_erode) которое после преобразования
+cv2.imwrite('out' + os.sep + 'roterode.png', roterode)  # показывает его
 
 # поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
 contours, hierarchy = cv2.findContours(roterode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -177,6 +209,7 @@ for _ in table:
     d += 1
 # сохранение всех изображений
 cv2.imwrite('out' + os.sep + 'Input.png', image)
+cv2.imwrite('out' + os.sep + 'Input_orig.png', image_orig)
 # cv2.imwrite('out' + os.sep + 'gray.png', gray)
 # cv2.imwrite('out' + os.sep + 'thresh.png', thresh)
 # cv2.imwrite('out' + os.sep + 'Enlarged.png', img_erode)
