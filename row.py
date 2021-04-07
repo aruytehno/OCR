@@ -2,10 +2,11 @@ import os
 import cv2
 import numpy as np
 
-
-
 # Возвращает повёрнутое изображение (матрицу) на угол "angle"
 # https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
+from pytesseract import pytesseract
+
+
 def rotate_image(image):
     gray = cv2.bitwise_not(cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY))
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
@@ -23,7 +24,6 @@ def rotate_image(image):
 
 
 # сортирует контруры, возвращает вложенный массив, табличное представление
-# [[((x,y),(w,h),angle)),((x,y),(w,h),angle)),...],[((x,y),(w,h),angle)),((x,y),(w,h),angle)),...],]
 def sorting_contours(contours):
     contours2 = contours.copy()
     cell_table = []
@@ -86,6 +86,7 @@ def cells(contours):
             # cv2.drawContours(rotated_img, [box], 0, (0, 0, 255), 1)
     return cells
 
+
 def places_intersection_points(point_table):
     # Расставляет точки пересечения
     for _ in point_table:
@@ -94,6 +95,7 @@ def places_intersection_points(point_table):
                 cv2.circle(rotated_img, (int(___[0]), int(___[1])), 2, (255, 0, 255),
                            2)  # цвет точек пересечения (феолет.)
     return point_table
+
 
 def point_in_table(table):
     point_table = []
@@ -117,7 +119,6 @@ def show_cell_numbers():
             n += 1
         d += 1
     return table
-
 
 
 """
@@ -147,14 +148,34 @@ contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPRO
 
 table = sorting_contours(cells(contours))
 
-
 point_table = point_in_table(table)
 
-# Функция показывает точки пересечения
-# places_intersection_points(point_table)
-# Функция показывает номера ячеек
-# show_cell_numbers()
+# places_intersection_points(point_table)  # Функция показывает точки пересечения
+
+# show_cell_numbers()  # Функция показывает номера ячеек
 
 # Отображает строку по номеру
-cv2.imwrite('out' + os.sep + 'cropped.png', show_row(point_table, 6))
+xs = 0
+for i in point_table:
+    xs += 1
+    print(xs)
+    cv2.imwrite('out' + os.sep + 'cropped.png', show_row(point_table, xs))
 
+    img = cv2.cvtColor(show_row(point_table, xs), cv2.COLOR_BGR2RGB)
+    data = pytesseract.image_to_data(img, lang='eng', config=r'--oem 3 --psm 11')
+
+    # Перебираем данные про текстовые надписи
+    for i, el in enumerate(data.splitlines()):
+        if i == 0:
+            continue
+        el = el.split()
+        try:
+            # Создаем подписи на картинке
+            x, y, w, h = int(el[6]), int(el[7]), int(el[8]), int(el[9])
+            # cv2.rectangle(img, (x, y), (w + x, h + y), (0, 0, 255), 1)
+            print(x)
+            print(y)
+            cv2.putText(img, el[11], (x + 15, y + 7), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
+        except IndexError:
+            print("Операция была пропущена")
+    cv2.imwrite('out' + os.sep + 'cropped_' + str(xs) + '.png', img)
