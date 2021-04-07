@@ -1,4 +1,4 @@
-# import the necessary packages
+# https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
 import os
 
 import numpy as np
@@ -10,7 +10,7 @@ import cv2
 #                 help="path to input image file")
 # args = vars(ap.parse_args())
 # load the image from disk
-image = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example5cl+angle.png')
+image = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
 # преобразовать изображение в оттенки серого и перевернуть передний план
 # и фон, чтобы убедиться, что передний план теперь "белый" и фон "черный"
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
