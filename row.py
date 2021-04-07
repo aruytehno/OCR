@@ -3,23 +3,26 @@ import cv2
 import numpy as np
 import math
 
+"""
+Возвращает повёрнутое изображение (матрицу) на угол "angle"
+https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
+"""
 
-# Возвращает повёрнутое изображение (матрицу) на угол "angle"
-# def rotate_image(mat, angle):
-#     height, width = mat.shape[:2]
-#     image_center = (width / 2, height / 2)
-#
-#     rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1)
-#
-#     radians = math.radians(angle)
-#     sin = math.sin(radians)
-#     cos = math.cos(radians)
-#     bound_w = int((height * abs(sin)) + (width * abs(cos)))
-#     bound_h = int((height * abs(cos)) + (width * abs(sin)))
-#
-#     rotation_mat[0, 2] += ((bound_w / 2) - image_center[0])
-#     rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
-#     return cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
+
+def rotate_image(image):
+    gray = cv2.bitwise_not(cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY))
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    coords = np.column_stack(np.where(thresh > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+    print("[INFO] angle: {:.3f}".format(angle))
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    return cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
 
 # сортирует контруры, возвращает вложенный массив, табличное представление
@@ -75,37 +78,12 @@ def show_row(point_table, n):
 """
 начало работы
 """
-image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
-# преобразовать изображение в оттенки серого и перевернуть передний план
-# и фон, чтобы убедиться, что передний план теперь "белый" и фон "черный"
-gray = cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY)
-gray = cv2.bitwise_not(gray)
-# порог изображения, устанавливая для всех пикселей переднего плана значение
-# 255 и все пиксели фона на 0
-thresh = cv2.threshold(gray, 0, 255,
-                       cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-# получаем координаты (x, y) всех значений пикселей, которые
-# больше нуля, используйте эти координаты для
-# вычислить повернутую ограничивающую рамку, которая содержит все координаты
-coords = np.column_stack(np.where(thresh > 0))
-angle = cv2.minAreaRect(coords)[-1]
-# функция `cv2.minAreaRect` возвращает значения в
-# диапазон [-90, 0); при вращении прямоугольника по часовой стрелке
-# вернули угловые тренды на 0 - в этом особом случае мы
-# нужно добавить 90 градусов к углу
-if angle < -45:
-    angle = -(90 + angle)
-# в противном случае просто возьмите угол, обратный углу, чтобы сделать его положительным
-else:
-    angle = -angle
-# повернуть изображение, чтобы выровнять его
-(h, w) = image_orig.shape[:2]
-center = (w // 2, h // 2)
-M = cv2.getRotationMatrix2D(center, angle, 1.0)
-rotated_orig = cv2.warpAffine(image_orig, M, (w, h),
-                              flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 # чтение изображение в img
-image = rotated_orig
+image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
+
+# автоповорот изображения
+image = rotate_image(image_orig)
+cv2.imwrite('out' + os.sep + 'Input_rotate.png', image)
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
@@ -126,8 +104,7 @@ cnt = contours[1]  # самый большой контур копировать
 rect = cv2.minAreaRect(cnt)  # пытаемся вписать прямоугольник
 box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
 box = np.int0(box)  # округление координат
-print(box)
-
+# print(box)
 
 for _ in box:
     xy = tuple(_)
@@ -153,10 +130,10 @@ t2 = box[indt2]
 
 edge1 = (t1[0] - t2[0])
 edge2 = (t1[1] - t2[1])
-print(edge1, edge2)
+# print(edge1, edge2)
 # edge1 edge2 - катеты прямоугольного треугольника
 angle = 180.0 / math.pi * math.atan(edge2 / edge1)
-print("угол", angle)
+# print("угол", angle)
 # конец определения угла поворота
 
 rotate_img = image  # поворачивает изначсальное изображение на угол поворота главного контура
@@ -194,7 +171,7 @@ for _ in point_table:
         for ___ in __:
             cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
 
-print(point_table.__sizeof__())
+# print(point_table.__sizeof__())
 
 show_row(point_table, 7)  # отображает строку по номеру
 

@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 
-src = 255 - cv2.imread('examples' + os.sep + 'example.png', 0)
+src = 255 - cv2.imread('examples' + os.sep + 'Rotated.png', 0)
 scores = []
 
 h, w = src.shape
