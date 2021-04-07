@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-import math
+
 
 
 # Возвращает повёрнутое изображение (матрицу) на угол "angle"
@@ -82,7 +82,8 @@ def cells(contours):
             cells.append(rect)
             box = cv2.boxPoints(rect)
             box = np.int0(box)
-            cv2.drawContours(rotated_img, [box], 0, (0, 0, 255), 1)  # цвет определённых контуров (красный)
+            # show color contours
+            # cv2.drawContours(rotated_img, [box], 0, (0, 0, 255), 1)
     return cells
 
 def places_intersection_points(point_table):
@@ -93,6 +94,16 @@ def places_intersection_points(point_table):
                 cv2.circle(rotated_img, (int(___[0]), int(___[1])), 2, (255, 0, 255),
                            2)  # цвет точек пересечения (феолет.)
     return point_table
+
+def point_in_table(table):
+    point_table = []
+    for _ in table:
+        row = []
+        for __ in _:
+            row.append(cv2.boxPoints(__))
+        point_table.append(row)
+    return point_table
+
 
 def show_cell_numbers():
     # отображение номеров ячеек
@@ -106,6 +117,8 @@ def show_cell_numbers():
             n += 1
         d += 1
     return table
+
+
 
 """
 начало работы
@@ -134,19 +147,14 @@ contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPRO
 
 table = sorting_contours(cells(contours))
 
-point_table = []
-for _ in table:
-    row = []
-    for __ in _:
-        row.append(cv2.boxPoints(__))
-    point_table.append(row)
 
+point_table = point_in_table(table)
 
 # Функция показывает точки пересечения
-places_intersection_points(point_table)
+# places_intersection_points(point_table)
 # Функция показывает номера ячеек
-show_cell_numbers()
+# show_cell_numbers()
 
 # Отображает строку по номеру
-cv2.imwrite('out' + os.sep + 'cropped.png', show_row(point_table, 7))
+cv2.imwrite('out' + os.sep + 'cropped.png', show_row(point_table, 6))
 
