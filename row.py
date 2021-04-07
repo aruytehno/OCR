@@ -72,11 +72,13 @@ def show_row(point_table, n):
     cv2.imwrite('out' + os.sep + 'cropped.png', crop_img)
 
 
-# начало работы
+"""
+начало работы
+"""
 # чтение изображение в img
-img = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'm21.png')
+image = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
 # конвертирование в оттенки серого результат в "gray"
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
 # первое число очень важно - от его выбора зависит как определятся контуры
 ret, thresh = cv2.threshold(gray, 200, 255, 0, cv2.THRESH_BINARY)
@@ -87,7 +89,7 @@ img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),
 contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 # копирование входного изображение чтобы потом наложить на него контуры
-output = img.copy()
+output = image.copy()
 
 cnt = contours[1]  # самый большой контур копировать в cnt
 
@@ -126,9 +128,8 @@ angle = 180.0 / math.pi * math.atan(edge2 / edge1)
 print("угол", angle)
 # конец определения угла поворота
 
-rotate_img = rotate_image(img, angle)  # поворачивает изначсальное изображение на угол поворота главного контура
-cv2.imshow("rotate", rotate_img)  # показывает его
-cv2.waitKey(0)
+rotate_img = rotate_image(image, angle)  # поворачивает изначсальное изображение на угол поворота главного контура
+cv2.imwrite('out' + os.sep + 'rotate_img.png', rotate_img)  # показывает его
 roterode = rotate_image(img_erode, angle)  # поворачивает изображение (img_erode) которое после преобразования
 
 # поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
@@ -175,8 +176,8 @@ for _ in table:
         n += 1
     d += 1
 # сохранение всех изображений
-cv2.imwrite('out' + os.sep + 'Input.png', img)
+cv2.imwrite('out' + os.sep + 'Input.png', image)
 # cv2.imwrite('out' + os.sep + 'gray.png', gray)
-cv2.imwrite('out' + os.sep + 'thresh.png', thresh)
+# cv2.imwrite('out' + os.sep + 'thresh.png', thresh)
 # cv2.imwrite('out' + os.sep + 'Enlarged.png', img_erode)
-cv2.imwrite('out' + os.sep + 'rotimg.png', rotate_img)
+# cv2.imwrite('out' + os.sep + 'rotimg.png', rotate_img)
