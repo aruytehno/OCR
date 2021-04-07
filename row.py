@@ -3,12 +3,9 @@ import cv2
 import numpy as np
 import math
 
-"""
-Возвращает повёрнутое изображение (матрицу) на угол "angle"
-https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
-"""
 
-
+# Возвращает повёрнутое изображение (матрицу) на угол "angle"
+# https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
 def rotate_image(image):
     gray = cv2.bitwise_not(cv2.cvtColor(image_orig, cv2.COLOR_BGR2GRAY))
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
@@ -71,8 +68,22 @@ def show_row(point_table, n):
             if __[0] < minX:
                 minX = __[0]
 
-    crop_img = rotate_img[int(minY):int(maxY), int(minX):int(maxX)]
-    cv2.imwrite('out' + os.sep + 'cropped.png', crop_img)
+    return rotated_img[int(minY):int(maxY), int(minX):int(maxX)]
+
+
+def cells(contours):
+    # здесь преобразование беспорядочных точек контуров в отсортированые 4 точки углов каждой ячейки:
+    n = 0
+    cells = []
+    for idx, contour in enumerate(contours):
+        if hierarchy[0][idx][3] == 1:
+            n += 1
+            rect = cv2.minAreaRect(contour)  # выход:((x,y),(w,h),angle))
+            cells.append(rect)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            cv2.drawContours(rotated_img, [box], 0, (0, 0, 255), 1)  # цвет определённых контуров (красный)
+    return cells
 
 
 """
@@ -80,83 +91,25 @@ def show_row(point_table, n):
 """
 # чтение изображение в img
 image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
-
 # автоповорот изображения
-image = rotate_image(image_orig)
-cv2.imwrite('out' + os.sep + 'Input_rotate.png', image)
+rotated_img = rotate_image(image_orig)
 # конвертирование в оттенки серого результат в "gray"
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(rotated_img, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
 # первое число очень важно - от его выбора зависит как определятся контуры
 ret, thresh = cv2.threshold(gray, 200, 255, 0, cv2.THRESH_BINARY)
 img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8),
                       iterations=1)  # эрозия)) - каждый чёрный пиксель закрашивает соседние вокруг себя
-
 # поиск контуров в "contours" изображение контуров, а в "hierarhy" иерархия (инф о вложенности контуров)
 contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
 # копирование входного изображение чтобы потом наложить на него контуры
-output = image.copy()
-
+output = rotated_img.copy()
 cnt = contours[1]  # самый большой контур копировать в cnt
 
-# определение угла поворота по самой нижней линии контура
-rect = cv2.minAreaRect(cnt)  # пытаемся вписать прямоугольник
-box = cv2.boxPoints(rect)  # поиск четырех вершин прямоугольника
-box = np.int0(box)  # округление координат
-# print(box)
-
-for _ in box:
-    xy = tuple(_)
-    output = cv2.circle(output, xy, 1, (0, 0, 255), 2)
-
-# нахождение 2 самых нижних точек
-t = -1
-indt1 = -1
-for i, _ in enumerate(box):
-    if _[1] > t:
-        t = _[1]
-        indt1 = i
-
-t = -1
-indt2 = -1
-for i, _ in enumerate(box):
-    if indt1 != i:
-        if _[1] > t:
-            t = _[1]
-            indt2 = i
-t1 = box[indt1]
-t2 = box[indt2]
-
-edge1 = (t1[0] - t2[0])
-edge2 = (t1[1] - t2[1])
-# print(edge1, edge2)
-# edge1 edge2 - катеты прямоугольного треугольника
-angle = 180.0 / math.pi * math.atan(edge2 / edge1)
-# print("угол", angle)
-# конец определения угла поворота
-
-rotate_img = image  # поворачивает изначсальное изображение на угол поворота главного контура
-cv2.imwrite('out' + os.sep + 'rotate_img.png', rotate_img)  # показывает его
-roterode = img_erode  # поворачивает изображение (img_erode) которое после преобразования
-cv2.imwrite('out' + os.sep + 'roterode.png', roterode)  # показывает его
-
 # поиск контуров (contours - координаты точек контуров, hierarchy - иерархия)
-contours, hierarchy = cv2.findContours(roterode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-# здесь преобразование беспорядочных точек контуров в отсортированые 4 точки углов каждой ячейки:
-n = 0
-cells = []
-for idx, contour in enumerate(contours):
-    if hierarchy[0][idx][3] == 1:
-        n += 1
-        rect = cv2.minAreaRect(contour)  # выход:((x,y),(w,h),angle))
-        cells.append(rect)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-        cv2.drawContours(rotate_img, [box], 0, (0, 0, 255), 1)  # цвет определённых контуров (красный)
-
-table = sorting_contours(cells)
+table = sorting_contours(cells(contours))
 
 point_table = []
 for _ in table:
@@ -169,25 +122,23 @@ for _ in table:
 for _ in point_table:
     for __ in _:
         for ___ in __:
-            cv2.circle(rotate_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
+            cv2.circle(rotated_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
 
 # print(point_table.__sizeof__())
 
-show_row(point_table, 7)  # отображает строку по номеру
 
 # отображение номеров ячеек
 n = 1
 d = 1
 for _ in table:
     for __ in _:
-        cv2.putText(rotate_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1,
+        cv2.putText(rotated_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1,
                     cv2.LINE_AA)  # цвет нумерации ячеек (синий)
         n += 1
     d += 1
+
+crop_img = show_row(point_table, 7)  # отображает строку по номеру
+cv2.imwrite('out' + os.sep + 'cropped.png', crop_img)
 # сохранение всех изображений
-cv2.imwrite('out' + os.sep + 'Input.png', image)
+cv2.imwrite('out' + os.sep + 'Input.png', rotated_img)
 cv2.imwrite('out' + os.sep + 'Input_orig.png', image_orig)
-# cv2.imwrite('out' + os.sep + 'gray.png', gray)
-# cv2.imwrite('out' + os.sep + 'thresh.png', thresh)
-# cv2.imwrite('out' + os.sep + 'Enlarged.png', img_erode)
-# cv2.imwrite('out' + os.sep + 'rotimg.png', rotate_img)
