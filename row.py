@@ -85,6 +85,27 @@ def cells(contours):
             cv2.drawContours(rotated_img, [box], 0, (0, 0, 255), 1)  # цвет определённых контуров (красный)
     return cells
 
+def places_intersection_points(point_table):
+    # Расставляет точки пересечения
+    for _ in point_table:
+        for __ in _:
+            for ___ in __:
+                cv2.circle(rotated_img, (int(___[0]), int(___[1])), 2, (255, 0, 255),
+                           2)  # цвет точек пересечения (феолет.)
+    return point_table
+
+def show_cell_numbers():
+    # отображение номеров ячеек
+    n = 1
+    d = 1
+    for _ in table:
+        for __ in _:
+            cv2.putText(rotated_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0),
+                        1,
+                        cv2.LINE_AA)  # цвет нумерации ячеек (синий)
+            n += 1
+        d += 1
+    return table
 
 """
 начало работы
@@ -93,6 +114,8 @@ def cells(contours):
 image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
 # автоповорот изображения
 rotated_img = rotate_image(image_orig)
+cv2.imwrite('out' + os.sep + 'Input.png', rotated_img)
+cv2.imwrite('out' + os.sep + 'Input_orig.png', image_orig)
 # конвертирование в оттенки серого результат в "gray"
 gray = cv2.cvtColor(rotated_img, cv2.COLOR_BGR2GRAY)
 # пороговое осветление (все пиксели ярче 200 становятся белыми (255)остальные чёрными (0)) результат в "trash"
@@ -118,27 +141,12 @@ for _ in table:
         row.append(cv2.boxPoints(__))
     point_table.append(row)
 
-# Расставляет точки пересечения
-for _ in point_table:
-    for __ in _:
-        for ___ in __:
-            cv2.circle(rotated_img, (int(___[0]), int(___[1])), 2, (255, 0, 255), 2)  # цвет точек пересечения (феолет.)
 
-# print(point_table.__sizeof__())
+# Функция показывает точки пересечения
+places_intersection_points(point_table)
+# Функция показывает номера ячеек
+show_cell_numbers()
 
+# Отображает строку по номеру
+cv2.imwrite('out' + os.sep + 'cropped.png', show_row(point_table, 7))
 
-# отображение номеров ячеек
-n = 1
-d = 1
-for _ in table:
-    for __ in _:
-        cv2.putText(rotated_img, str(n), (int(__[0][0]), int(__[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1,
-                    cv2.LINE_AA)  # цвет нумерации ячеек (синий)
-        n += 1
-    d += 1
-
-crop_img = show_row(point_table, 7)  # отображает строку по номеру
-cv2.imwrite('out' + os.sep + 'cropped.png', crop_img)
-# сохранение всех изображений
-cv2.imwrite('out' + os.sep + 'Input.png', rotated_img)
-cv2.imwrite('out' + os.sep + 'Input_orig.png', image_orig)
