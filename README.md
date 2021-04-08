@@ -1,11 +1,11 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-# OCR
-Python OpenCV Tesseract OCR
-Автоматическое выравнивание:  
+# OCR Python+OpenCV+Tesseract 
+
+#### Автоматическое выравнивание:  
 ![alt text](examples/rotated/example7.png)  
-Определение контуров и сегментирование на ячейки:  
+#### Определение контуров и сегментирование на ячейки:  
 ![alt text](examples/example.png)  
-Разделение на отдельные линии:  
+#### Разделение на отдельные линии:  
 ![alt text](examples/cropped/cropped_7.png)
 ![alt text](examples/cropped/cropped_6.png)
 ![alt text](examples/cropped/cropped_5.png)
@@ -14,7 +14,8 @@ Python OpenCV Tesseract OCR
 ![alt text](examples/cropped/cropped_2.png)
 ![alt text](examples/cropped/cropped_1.png)  
 ---
-##Задачи:
+
+# Задачи:
 1. [Автоматическое выравнивание страницы по тексту](https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/)
    * Обнаружение блока текста на изображении.
    * Вычисление угла повернутого текста.
