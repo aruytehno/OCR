@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from pathlib import Path
 
 # Возвращает повёрнутое изображение (матрицу) на угол "angle"
 # https://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
@@ -122,8 +123,13 @@ def show_cell_numbers():
 
 
 """
-начало работы
+Begin work
 """
+if os.path.exists("out"):
+    print("Image out folder: " + os.path.abspath("out"))
+else:
+    print("Make out folder")
+    Path("out").mkdir(parents=True, exist_ok=True)
 # чтение изображение в img
 image_orig = cv2.imread('examples' + os.sep + 'rotated' + os.sep + 'example7.png')
 # автоповорот изображения
